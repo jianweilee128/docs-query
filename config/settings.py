@@ -12,6 +12,8 @@ load_dotenv(ROOT / ".env")
 DATA_PATH = ROOT / "data" / "llms-full.txt"
 CHROMA_PATH = ROOT / "chroma"
 PROMPT_GENERATE_PATH = ROOT / "prompts" / "generate.md"
+EVAL_QUESTIONS_PATH = ROOT / "eval" / "questions.json"
+EVAL_RESULTS_DIR = ROOT / "eval" / "results"
 
 # Chroma
 COLLECTION_NAME = "docs"

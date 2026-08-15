@@ -1,0 +1,66 @@
+[
+  {
+    "id": "factual-001",
+    "type": "factual",
+    "question": "What decorator marks an Angular component?",
+    "must_include": ["@Component"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "factual-002",
+    "type": "factual",
+    "question": "What is the purpose of a component selector?",
+    "must_include": ["selector", "HTML"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "howto-001",
+    "type": "howto",
+    "question": "How do I create a new component with the Angular CLI?",
+    "must_include": ["ng generate component"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "howto-002",
+    "type": "howto",
+    "question": "How do I accept data into a component with input properties?",
+    "must_include": ["input"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "howto-003",
+    "type": "howto",
+    "question": "How do I set up routing in Angular?",
+    "must_include": ["Router", "route"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "abstain-001",
+    "type": "abstain",
+    "question": "What is Angular's official market share in 2026?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-002",
+    "type": "abstain",
+    "question": "How do I deploy Angular to a quantum computer?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-003",
+    "type": "abstain",
+    "question": "Who won the Angular vs React bakeoff at Google I/O 2019?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  }
+]
