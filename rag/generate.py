@@ -1,41 +1,36 @@
-import os
-import sys
-from pathlib import Path
-
-from dotenv import load_dotenv
 from openai import OpenAI
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
-
-from retrieve import retrieve_chunks
-
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-CHAT_MODEL = "gpt-4.1-mini"
-PROMPT_PATH = ROOT / "prompts" / "generate.md"
+from config.settings import (
+    CHAT_MODEL,
+    COLLECTION_NAME,
+    OPENAI_API_KEY,
+    PROMPT_GENERATE_PATH,
+    TOP_K,
+)
+from rag.retrieve import retrieve_chunks
 
 
 def build_prompt(query: str, chunks: list[dict[str, str]]) -> str:
     context = "\n\n---\n\n".join(
         f"[{chunk['id']}]\n{chunk['document']}" for chunk in chunks
     )
-    template = PROMPT_PATH.read_text(encoding="utf-8")
+    template = PROMPT_GENERATE_PATH.read_text(encoding="utf-8")
     return template.format(query=query, context=context)
 
 
 def generate_answer(
     query: str,
     target_collection: str | None = None,
-    n_results: int = 5,
+    n_results: int | None = None,
 ) -> tuple[str, list[dict[str, str]]]:
     """Return (answer_with_citations, retrieved_chunks) for spot-checking."""
     if not OPENAI_API_KEY:
         raise SystemExit("OPENAI_API_KEY missing — set it in .env")
 
     chunks = retrieve_chunks(
-        query, target_collection=target_collection, n_results=n_results
+        query,
+        target_collection=target_collection,
+        n_results=n_results if n_results is not None else TOP_K,
     )
     if not chunks:
         return "No relevant documentation chunks were retrieved.", []
@@ -49,7 +44,7 @@ def generate_answer(
 if __name__ == "__main__":
     question = "how do I create a component?"
     print(f"Q: {question}\n")
-    answer, chunks = generate_answer(question, target_collection="docs")
+    answer, chunks = generate_answer(question, target_collection=COLLECTION_NAME)
     print(answer)
     print("\n--- retrieved for spot-check ---")
     for chunk in chunks:

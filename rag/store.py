@@ -1,22 +1,13 @@
-import os
-import sys
-from pathlib import Path
-
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
-from dotenv import load_dotenv
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "src"))
-
-from chunking import chunk_text
-from init_chroma import init_chroma
-
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-COLLECTION_NAME = "docs"
-EMBED_MODEL = "text-embedding-3-small"
+from config.settings import (
+    BATCH_SIZE,
+    COLLECTION_NAME,
+    EMBED_MODEL,
+    OPENAI_API_KEY,
+)
+from rag.chroma_client import init_chroma
+from rag.chunking import chunk_text
 
 
 def get_embedding_function() -> OpenAIEmbeddingFunction:
@@ -40,16 +31,16 @@ def get_collection(target_collection: str | None = None):
 def add_texts(
     texts: list[str],
     target_collection: str | None = None,
-    batch_size: int = 100,
+    batch_size: int | None = None,
 ) -> int:
     collection = get_collection(target_collection)
+    size = batch_size if batch_size is not None else BATCH_SIZE
 
-    for start in range(0, len(texts), batch_size):
-        batch = texts[start : start + batch_size]
+    for start in range(0, len(texts), size):
+        batch = texts[start : start + size]
         ids = [f"chunk-{start + i}" for i in range(len(batch))]
-        # Chroma embeds via OpenAIEmbeddingFunction
         collection.add(ids=ids, documents=batch)
-        print(f"Stored {min(start + batch_size, len(texts))}/{len(texts)}")
+        print(f"Stored {min(start + size, len(texts))}/{len(texts)}")
 
     return collection.count()
 
