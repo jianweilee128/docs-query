@@ -7,10 +7,11 @@ Usage:
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
-from config.settings import COLLECTION_NAME, ROOT
+from config.settings import COLLECTION_NAME, EVAL_WORKERS, ROOT
 from rag.generate import generate_answer
 
 QUESTIONS_PATH = ROOT / "eval" / "questions.json"
@@ -71,21 +72,45 @@ def score_case(case: dict, answer: str) -> dict:
     }
 
 
-def run_eval() -> Path:
-    cases = load_questions()
-    results = []
-
-    for i, case in enumerate(cases, 1):
-        print(f"[{i}/{len(cases)}] {case['id']}: {case['question']}")
+def run_case(case: dict) -> dict:
+    """Answer and score one case. Never raises — a broken case scores as a failure."""
+    try:
         answer, _chunks = generate_answer(
             case["question"],
             target_collection=COLLECTION_NAME,
         )
-        graded = score_case(case, answer)
-        status = "PASS" if graded["passed"] else "FAIL"
-        print(f"  -> {status} ({graded['reason']})")
-        results.append(graded)
+    except Exception as exc:
+        return {
+            "id": case["id"],
+            "type": case["type"],
+            "passed": False,
+            "reason": f"error: {type(exc).__name__}: {exc}",
+            "missing": [],
+            "forbidden_hits": [],
+            "question": case["question"],
+            "answer": "",
+        }
+    return score_case(case, answer)
 
+
+def run_eval(workers: int | None = None) -> Path:
+    cases = load_questions()
+    count = workers if workers is not None else EVAL_WORKERS
+    results: list[dict | None] = [None] * len(cases)
+
+    with ThreadPoolExecutor(max_workers=count) as pool:
+        futures = {pool.submit(run_case, case): i for i, case in enumerate(cases)}
+        for done, future in enumerate(as_completed(futures), 1):
+            index = futures[future]
+            graded = future.result()
+            results[index] = graded
+            status = "PASS" if graded["passed"] else "FAIL"
+            # One print per line keeps worker output from interleaving.
+            print(
+                f"[{done}/{len(cases)}] {graded['id']}: {status} ({graded['reason']})"
+            )
+
+    results = [r for r in results if r is not None]
     passed = sum(1 for r in results if r["passed"])
     summary = {
         "ran_at": datetime.now(timezone.utc).isoformat(),

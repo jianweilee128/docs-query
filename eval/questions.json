@@ -1,6 +1,6 @@
 [
   {
-    "id": "factual-001",
+    "id": "easy-001",
     "type": "factual",
     "question": "What decorator marks an Angular component?",
     "must_include": ["@Component"],
@@ -8,15 +8,71 @@
     "expect_abstain": false
   },
   {
-    "id": "factual-002",
+    "id": "easy-002",
     "type": "factual",
-    "question": "What is the purpose of a component selector?",
-    "must_include": ["selector", "HTML"],
+    "question": "What Angular template block is used for conditional display?",
+    "must_include": ["@if"],
     "must_not_include": [],
     "expect_abstain": false
   },
   {
-    "id": "howto-001",
+    "id": "easy-003",
+    "type": "factual",
+    "question": "What template block repeats content over a collection?",
+    "must_include": ["@for"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-004",
+    "type": "factual",
+    "question": "What lifecycle hook runs once after Angular has initialized the component's inputs?",
+    "must_include": ["ngOnInit"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-005",
+    "type": "factual",
+    "question": "What function creates a writable Angular signal?",
+    "must_include": ["signal"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-006",
+    "type": "factual",
+    "question": "What function derives a read-only value from other signals?",
+    "must_include": ["computed"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-007",
+    "type": "factual",
+    "question": "What Angular API is used for HTTP requests via dependency injection?",
+    "must_include": ["HttpClient"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-008",
+    "type": "factual",
+    "question": "What reactive forms class represents a single form control?",
+    "must_include": ["FormControl"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-009",
+    "type": "factual",
+    "question": "What directive optimizes image loading and requires ngSrc instead of src?",
+    "must_include": ["NgOptimizedImage"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-010",
     "type": "howto",
     "question": "How do I create a new component with the Angular CLI?",
     "must_include": ["ng generate component"],
@@ -24,18 +80,482 @@
     "expect_abstain": false
   },
   {
-    "id": "howto-002",
+    "id": "easy-011",
     "type": "howto",
-    "question": "How do I accept data into a component with input properties?",
-    "must_include": ["input"],
+    "question": "How do I create a new Angular project with the CLI?",
+    "must_include": ["ng new"],
     "must_not_include": [],
     "expect_abstain": false
   },
   {
-    "id": "howto-003",
+    "id": "easy-012",
     "type": "howto",
-    "question": "How do I set up routing in Angular?",
-    "must_include": ["Router", "route"],
+    "question": "How do I project content into a component from its parent?",
+    "must_include": ["ng-content"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-013",
+    "type": "howto",
+    "question": "How do I get a dependency without using constructor parameters?",
+    "must_include": ["inject"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "easy-014",
+    "type": "howto",
+    "question": "How do I navigate between routes from a template?",
+    "must_include": ["routerLink"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-001",
+    "type": "factual",
+    "question": "Why does Angular require a track expression in @for blocks?",
+    "must_include": ["track", "DOM"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-002",
+    "type": "factual",
+    "question": "What block do I add to a @for loop to render content when the collection is empty?",
+    "must_include": ["@empty"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-003",
+    "type": "factual",
+    "question": "What template syntax declares a local variable inside an Angular template?",
+    "must_include": ["@let"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-004",
+    "type": "factual",
+    "question": "Which blocks can a @defer block use to show placeholder, loading, and error states?",
+    "must_include": ["@placeholder", "@loading", "@error"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-005",
+    "type": "factual",
+    "question": "What are the two kinds of triggers supported by a @defer block?",
+    "must_include": ["on", "when"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-006",
+    "type": "factual",
+    "question": "What function converts an RxJS Observable into an Angular signal?",
+    "must_include": ["toSignal"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-007",
+    "type": "factual",
+    "question": "What function converts an Angular signal into an RxJS Observable?",
+    "must_include": ["toObservable"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-008",
+    "type": "factual",
+    "question": "Which ViewEncapsulation mode is the Angular default and how does it scope styles?",
+    "must_include": ["Emulated"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-009",
+    "type": "factual",
+    "question": "What reactive forms class holds a dynamic, homogenous collection of controls?",
+    "must_include": ["FormArray"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-010",
+    "type": "factual",
+    "question": "Which router directive marks where the router renders the component for the current URL?",
+    "must_include": ["router-outlet"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-011",
+    "type": "howto",
+    "question": "How do I prefetch a deferred block's dependencies before it renders?",
+    "must_include": ["prefetch"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-012",
+    "type": "howto",
+    "question": "How do I transform an input value as it is set on a component?",
+    "must_include": ["transform"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-013",
+    "type": "howto",
+    "question": "How do I create a two-way bindable input on a component?",
+    "must_include": ["model"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-014",
+    "type": "howto",
+    "question": "How do I read route parameters in a component using ActivatedRoute?",
+    "must_include": ["ActivatedRoute"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-015",
+    "type": "howto",
+    "question": "How do I register an HTTP interceptor with provideHttpClient?",
+    "must_include": ["withInterceptors"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-016",
+    "type": "howto",
+    "question": "How do I enable hydration for a server-side rendered Angular application?",
+    "must_include": ["provideClientHydration"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-017",
+    "type": "howto",
+    "question": "How do I apply CSS classes to a link only when its route is active?",
+    "must_include": ["RouterLinkActive"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "medium-018",
+    "type": "howto",
+    "question": "How do I stop Angular from interpolating or binding inside an element in a template?",
+    "must_include": ["ngNonBindable"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-001",
+    "type": "factual",
+    "question": "What non-executable prefix does HttpClient automatically strip from JSON responses for XSSI protection?",
+    "must_include": [")]}'"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-002",
+    "type": "factual",
+    "question": "By default, which cookie does HttpClient read for XSRF protection and which header does it set?",
+    "must_include": ["XSRF-TOKEN", "X-XSRF-TOKEN"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-003",
+    "type": "factual",
+    "question": "Which RenderMode renders a server route at build time, and what function supplies its route parameters?",
+    "must_include": ["Prerender", "getPrerenderParams"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-004",
+    "type": "factual",
+    "question": "For RenderMode.Prerender, what is the default fallback strategy when a path was not prerendered?",
+    "must_include": ["Server"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-005",
+    "type": "factual",
+    "question": "Which incremental hydration trigger keeps deferred content dehydrated indefinitely on the initial render?",
+    "must_include": ["hydrate never"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-006",
+    "type": "factual",
+    "question": "What two optional parameters does the @loading block accept to prevent flicker?",
+    "must_include": ["after", "minimum"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-007",
+    "type": "factual",
+    "question": "Which signal API holds state that is intrinsically linked to other state, and what two properties can you pass instead of a bare computation?",
+    "must_include": ["linkedSignal", "source", "computation"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-008",
+    "type": "factual",
+    "question": "In a custom set function for linkedSignal, what is the second argument used for?",
+    "must_include": ["rawSet"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-009",
+    "type": "factual",
+    "question": "Which attribute lets you alias an element for content projection, and can it be bound to a dynamic expression?",
+    "must_include": ["ngProjectAs", "static"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-010",
+    "type": "factual",
+    "question": "How does @switch support exhaustive type checking of a union type?",
+    "must_include": ["@default never"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-011",
+    "type": "factual",
+    "question": "Which LocationStrategy does the router use by default, and which one produces hash URLs?",
+    "must_include": ["PathLocationStrategy", "HashLocationStrategy"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-012",
+    "type": "factual",
+    "question": "What is the difference between the providers and viewProviders arrays on a component?",
+    "must_include": ["viewProviders", "content"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-013",
+    "type": "factual",
+    "question": "Which provideHttpClient feature switches the backend from fetch to XMLHttpRequest, and why would you need it?",
+    "must_include": ["withXhr", "progress"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-014",
+    "type": "factual",
+    "question": "What is the provideHttpClient equivalent of importing HttpClientModule?",
+    "must_include": ["withInterceptorsFromDi", "withXhr"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-015",
+    "type": "factual",
+    "question": "Which API attaches typed metadata to an HTTP request so an interceptor can read it?",
+    "must_include": ["HttpContextToken"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-016",
+    "type": "factual",
+    "question": "What option makes toSignal skip automatic unsubscription tied to the injection context?",
+    "must_include": ["manualCleanup"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-017",
+    "type": "factual",
+    "question": "How do matrix parameters differ from query parameters in Angular routing?",
+    "must_include": ["matrix", "segment"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-018",
+    "type": "factual",
+    "question": "Which two CSS animation APIs did Angular introduce for elements entering and leaving the DOM?",
+    "must_include": ["animate.enter", "animate.leave"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-019",
+    "type": "factual",
+    "question": "Which render callbacks let you run logic after Angular renders, once versus on every render?",
+    "must_include": ["afterNextRender", "afterEveryRender"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-020",
+    "type": "factual",
+    "question": "Which DI resolution modifier skips the current injector and starts the search at the parent?",
+    "must_include": ["skipSelf"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-021",
+    "type": "howto",
+    "question": "How do I apply another directive's behavior to a component without putting it in the template?",
+    "must_include": ["hostDirectives"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-022",
+    "type": "howto",
+    "question": "How do I bind route parameters directly to component inputs?",
+    "must_include": ["withComponentInputBinding"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-023",
+    "type": "howto",
+    "question": "How do I stop the router from setting an input to undefined when the value was never present in router data?",
+    "must_include": ["undefinedIfStale"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-024",
+    "type": "howto",
+    "question": "How do I set page titles for routes using a custom strategy?",
+    "must_include": ["TitleStrategy"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-025",
+    "type": "howto",
+    "question": "How do I opt a specific component out of hydration?",
+    "must_include": ["ngSkipHydration"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-026",
+    "type": "howto",
+    "question": "How do I capture and replay user events that happen before hydration completes?",
+    "must_include": ["withEventReplay"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-027",
+    "type": "howto",
+    "question": "How do I enable zoneless change detection, and what API tells SSR that async work is still pending?",
+    "must_include": ["provideZonelessChangeDetection", "PendingTasks"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-028",
+    "type": "howto",
+    "question": "How do I assert and flush outgoing HTTP requests in a unit test?",
+    "must_include": ["HttpTestingController"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-029",
+    "type": "howto",
+    "question": "How do I trigger an event on a DebugElement in a component test?",
+    "must_include": ["triggerEventHandler"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-030",
+    "type": "howto",
+    "question": "How do I wait for a fixture to settle after binding a signal input in a test?",
+    "must_include": ["whenStable"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-031",
+    "type": "howto",
+    "question": "How do I filter component harness instances by their properties?",
+    "must_include": ["HarnessPredicate"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-032",
+    "type": "howto",
+    "question": "Which harness environment do I use to load harnesses in TestBed unit tests?",
+    "must_include": ["TestbedHarnessEnvironment"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-033",
+    "type": "howto",
+    "question": "How do I build a reactive form whose controls are non-nullable by default?",
+    "must_include": ["NonNullableFormBuilder"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-034",
+    "type": "howto",
+    "question": "Which typed forms class models a group with dynamic keys of the same control type?",
+    "must_include": ["FormRecord"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-035",
+    "type": "howto",
+    "question": "How do I validate two fields against each other in a reactive form?",
+    "must_include": ["cross"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-036",
+    "type": "howto",
+    "question": "How do I add and remove validators on a control at runtime, and what must I call afterwards?",
+    "must_include": ["setValidators", "updateValueAndValidity"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-037",
+    "type": "howto",
+    "question": "How do I ignore unknown elements in a nested component test instead of declaring them?",
+    "must_include": ["NO_ERRORS_SCHEMA"],
+    "must_not_include": [],
+    "expect_abstain": false
+  },
+  {
+    "id": "hard-038",
+    "type": "howto",
+    "question": "How do I fetch async data reactively with a signal-based HTTP API?",
+    "must_include": ["httpResource"],
     "must_not_include": [],
     "expect_abstain": false
   },
@@ -59,6 +579,62 @@
     "id": "abstain-003",
     "type": "abstain",
     "question": "Who won the Angular vs React bakeoff at Google I/O 2019?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-004",
+    "type": "abstain",
+    "question": "What salary should an Angular developer expect in Singapore?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-005",
+    "type": "abstain",
+    "question": "How do I connect Angular to a NoSQL database called CoralDB?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-006",
+    "type": "abstain",
+    "question": "What does the RenderMode.Edge rendering mode do for server routes?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-007",
+    "type": "abstain",
+    "question": "How do I enable withWebSocketSupport() in provideHttpClient?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-008",
+    "type": "abstain",
+    "question": "How does the @memo template block cache expensive template expressions?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-009",
+    "type": "abstain",
+    "question": "What is the default cache size in megabytes for @defer prefetched chunks?",
+    "must_include": [],
+    "must_not_include": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "abstain-010",
+    "type": "abstain",
+    "question": "Which Angular release introduced the built-in signalStore state management API?",
     "must_include": [],
     "must_not_include": [],
     "expect_abstain": true

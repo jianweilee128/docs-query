@@ -17,6 +17,8 @@ EVAL_RESULTS_DIR = ROOT / "eval" / "results"
 
 # Chroma
 COLLECTION_NAME = "docs"
+CORPUS_NAME = "angular"
+DOC_VERSION = "current"
 
 # Chunking
 CHUNK_SIZE = 1000
@@ -29,3 +31,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Retrieve / generate
 TOP_K = 5
 CHAT_MODEL = "gpt-4.1-mini"
+
+# Eval
+EVAL_WORKERS = 8

@@ -10,10 +10,13 @@ from config.settings import (
 from rag.retrieve import retrieve_chunks
 
 
-def build_prompt(query: str, chunks: list[dict[str, str]]) -> str:
-    context = "\n\n---\n\n".join(
-        f"[{chunk['id']}]\n{chunk['document']}" for chunk in chunks
-    )
+def build_prompt(query: str, chunks: list[dict]) -> str:
+    parts = []
+    for chunk in chunks:
+        heading = (chunk.get("metadata") or {}).get("heading", "")
+        label = f"[{chunk['id']}]" + (f" {heading}" if heading else "")
+        parts.append(f"{label}\n{chunk['document']}")
+    context = "\n\n---\n\n".join(parts)
     template = PROMPT_GENERATE_PATH.read_text(encoding="utf-8")
     return template.format(query=query, context=context)
 
@@ -22,7 +25,8 @@ def generate_answer(
     query: str,
     target_collection: str | None = None,
     n_results: int | None = None,
-) -> tuple[str, list[dict[str, str]]]:
+    where: dict | None = None,
+) -> tuple[str, list[dict]]:
     """Return (answer_with_citations, retrieved_chunks) for spot-checking."""
     if not OPENAI_API_KEY:
         raise SystemExit("OPENAI_API_KEY missing — set it in .env")
@@ -31,6 +35,7 @@ def generate_answer(
         query,
         target_collection=target_collection,
         n_results=n_results if n_results is not None else TOP_K,
+        where=where,
     )
     if not chunks:
         return "No relevant documentation chunks were retrieved.", []
@@ -48,4 +53,8 @@ if __name__ == "__main__":
     print(answer)
     print("\n--- retrieved for spot-check ---")
     for chunk in chunks:
-        print(f"{chunk['id']}: {chunk['document'][:120].replace(chr(10), ' ')}...")
+        meta = chunk.get("metadata") or {}
+        print(
+            f"{chunk['id']} ({meta.get('heading')}): "
+            f"{chunk['document'][:120].replace(chr(10), ' ')}..."
+        )
