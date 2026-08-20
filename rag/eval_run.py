@@ -7,6 +7,7 @@ Usage:
 from __future__ import annotations
 
 import json
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -71,11 +72,30 @@ def score_case(case: dict, answer: str) -> dict:
         "answer": answer,
     }
 
+def score_context(case, chunks: list[dict]) -> dict:
+    """Did the retrieved chunks contain the information needed to answer the question?"""
+    haystacks = "\n".join([c["document"] for c in chunks]).lower()
+    anchors = case.get("must_include", [])
+    missing = [a for a in anchors if a.lower() not in haystacks]
+    return {
+        "anchors": len(anchors),
+        "missing": missing,
+        "recall": round((len(anchors) - len(missing)) / len(anchors), 3) if anchors else None
+    }
+
+
+def diagnose_context(context: dict, generation: dict) -> str:
+    if not context["anchors"]:
+        return "na"
+    if context["missing"]:
+        return "retrieval miss"
+    return "pass" if generation["passed"] else "generation miss"
+
 
 def run_case(case: dict) -> dict:
     """Answer and score one case. Never raises — a broken case scores as a failure."""
     try:
-        answer, _chunks = generate_answer(
+        answer, chunks = generate_answer(
             case["question"],
             target_collection=COLLECTION_NAME,
         )
@@ -85,12 +105,45 @@ def run_case(case: dict) -> dict:
             "type": case["type"],
             "passed": False,
             "reason": f"error: {type(exc).__name__}: {exc}",
+            "verdict": "error",
             "missing": [],
             "forbidden_hits": [],
+            "context": None,
+            "retrieved_ids": [],
             "question": case["question"],
             "answer": "",
         }
-    return score_case(case, answer)
+
+    generation = score_case(case, answer)
+    context = score_context(case, chunks)
+    return {
+        **generation,
+        "verdict": diagnose_context(context, generation),
+        "context": context,
+        "retrieved_ids": [c["id"] for c in chunks],
+    }
+
+
+def mean(values: list[float]) -> float | None:
+    return round(sum(values) / len(values), 3) if values else None
+
+
+def context_summary(results: list[dict]) -> dict:
+    """Split the score into retrieval health and generation health."""
+    # Abstain cases have no anchors to look for, so they can't be scored here.
+    scored = [r for r in results if r["context"] and r["context"]["anchors"]]
+    hits = [r for r in scored if not r["context"]["missing"]]
+    misses = [r for r in scored if r["context"]["missing"]]
+    generated = [r for r in hits if r["passed"]]
+
+    return {
+        "verdicts": dict(Counter(r["verdict"] for r in results)),
+        "context_scored": len(scored),
+        "context_hit_rate": round(len(hits) / len(scored), 3) if scored else None,
+        "context_recall_mean": mean([r["context"]["recall"] for r in scored]),
+        "recall_on_misses": mean([r["context"]["recall"] for r in misses]),
+        "generation_given_context": round(len(generated) / len(hits), 3) if hits else None,
+    }
 
 
 def run_eval(workers: int | None = None) -> Path:
@@ -107,7 +160,8 @@ def run_eval(workers: int | None = None) -> Path:
             status = "PASS" if graded["passed"] else "FAIL"
             # One print per line keeps worker output from interleaving.
             print(
-                f"[{done}/{len(cases)}] {graded['id']}: {status} ({graded['reason']})"
+                f"[{done}/{len(cases)}] {graded['id']}: {status} "
+                f"[{graded['verdict']}] ({graded['reason']})"
             )
 
     results = [r for r in results if r is not None]
@@ -118,6 +172,7 @@ def run_eval(workers: int | None = None) -> Path:
         "passed": passed,
         "failed": len(results) - passed,
         "score": round(passed / len(results), 3) if results else 0.0,
+        **context_summary(results),
         "results": results,
     }
 
@@ -127,7 +182,17 @@ def run_eval(workers: int | None = None) -> Path:
     out.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
     print(f"\nScore: {summary['passed']}/{summary['total']} ({summary['score']:.0%})")
-    print(f"Wrote {out}")
+    print("\nVerdicts:")
+    for name, total in sorted(summary["verdicts"].items()):
+        print(f"  {name:<16} {total}")
+    print(
+        f"\nRetrieval  hit rate {summary['context_hit_rate']} "
+        f"over {summary['context_scored']} scored | "
+        f"mean recall {summary['context_recall_mean']} | "
+        f"recall on misses {summary['recall_on_misses']}"
+    )
+    print(f"Generation given context {summary['generation_given_context']}")
+    print(f"\nWrote {out}")
     return out
 
 
