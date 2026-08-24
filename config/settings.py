@@ -12,7 +12,9 @@ load_dotenv(ROOT / ".env")
 DATA_PATH = ROOT / "data" / "llms-full.txt"
 CHROMA_PATH = ROOT / "chroma"
 PROMPT_GENERATE_PATH = ROOT / "prompts" / "generate.md"
+PROMPT_JUDGE_PATH = ROOT / "prompts" / "judge.md"
 EVAL_QUESTIONS_PATH = ROOT / "eval" / "questions.json"
+EVAL_GOLD_PATH = ROOT / "eval" / "gold_labels.json"
 EVAL_RESULTS_DIR = ROOT / "eval" / "results"
 
 # Chroma
@@ -34,3 +36,4 @@ CHAT_MODEL = "gpt-4.1-mini"
 
 # Eval
 EVAL_WORKERS = 8
+JUDGE_MODEL = "gpt-4.1-mini"
