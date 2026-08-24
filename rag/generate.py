@@ -1,12 +1,10 @@
-from openai import OpenAI
-
 from config.settings import (
     CHAT_MODEL,
     COLLECTION_NAME,
-    OPENAI_API_KEY,
     PROMPT_GENERATE_PATH,
     TOP_K,
 )
+from rag.llm import complete
 from rag.retrieve import retrieve_chunks
 
 
@@ -28,9 +26,6 @@ def generate_answer(
     where: dict | None = None,
 ) -> tuple[str, list[dict]]:
     """Return (answer_with_citations, retrieved_chunks) for spot-checking."""
-    if not OPENAI_API_KEY:
-        raise SystemExit("OPENAI_API_KEY missing — set it in .env")
-
     chunks = retrieve_chunks(
         query,
         target_collection=target_collection,
@@ -40,10 +35,8 @@ def generate_answer(
     if not chunks:
         return "No relevant documentation chunks were retrieved.", []
 
-    client = OpenAI(api_key=OPENAI_API_KEY)
     prompt = build_prompt(query, chunks)
-    response = client.responses.create(model=CHAT_MODEL, input=prompt)
-    return response.output_text, chunks
+    return complete(prompt, model=CHAT_MODEL), chunks
 
 
 if __name__ == "__main__":

@@ -19,9 +19,10 @@ from config.settings import (
     EVAL_RESULTS_DIR,
     EVAL_WORKERS,
     JUDGE_MODEL,
-    OPENAI_API_KEY,
+    LLM_BASE_URL,
     PROMPT_JUDGE_PATH,
 )
+from rag.llm import complete, get_llm_client
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -66,17 +67,26 @@ def judge_answer(
     expect_abstain: bool = False,
     client: OpenAI | None = None,
 ) -> dict:
-    if not OPENAI_API_KEY:
-        raise SystemExit("OPENAI_API_KEY missing — set it in .env")
-
-    openai_client = client or OpenAI(api_key=OPENAI_API_KEY)
+    openai_client = client or get_llm_client()
     prompt = build_judge_prompt(question, answer, expect_abstain)
-    response = openai_client.responses.create(
-        model=JUDGE_MODEL,
-        input=prompt,
-        temperature=0,
-    )
-    graded = parse_judge_output(response.output_text)
+    try:
+        text = complete(
+            prompt,
+            model=JUDGE_MODEL,
+            temperature=0,
+            json_mode=True,
+            client=openai_client,
+        )
+    except Exception:
+        # Some Ollama builds reject response_format; the prompt already asks for JSON.
+        text = complete(
+            prompt,
+            model=JUDGE_MODEL,
+            temperature=0,
+            json_mode=False,
+            client=openai_client,
+        )
+    graded = parse_judge_output(text)
     graded["model"] = JUDGE_MODEL
     return graded
 
@@ -111,7 +121,7 @@ def confusion(human: list[bool], predicted: list[bool]) -> dict[str, int]:
 def validate_judge(workers: int | None = None) -> Path:
     gold = load_gold()
     items = gold["items"]
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    client = get_llm_client()
     count = workers if workers is not None else min(EVAL_WORKERS, len(items))
     rows: list[dict | None] = [None] * len(items)
 
@@ -159,6 +169,7 @@ def validate_judge(workers: int | None = None) -> Path:
     summary = {
         "ran_at": datetime.now(timezone.utc).isoformat(),
         "model": JUDGE_MODEL,
+        "base_url": LLM_BASE_URL,
         "gold": str(EVAL_GOLD_PATH).replace("\\", "/"),
         "source_run": gold.get("source_run"),
         "n": n,
