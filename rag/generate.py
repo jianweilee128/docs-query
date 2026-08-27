@@ -4,7 +4,7 @@ from config.settings import (
     PROMPT_GENERATE_PATH,
     TOP_K,
 )
-from rag.llm import complete
+from rag.llm import complete, empty_usage
 from rag.retrieve import retrieve_chunks
 
 
@@ -24,8 +24,8 @@ def generate_answer(
     target_collection: str | None = None,
     n_results: int | None = None,
     where: dict | None = None,
-) -> tuple[str, list[dict]]:
-    """Return (answer_with_citations, retrieved_chunks) for spot-checking."""
+) -> tuple[str, list[dict], dict]:
+    """Return (answer_with_citations, retrieved_chunks, generation_usage)."""
     chunks = retrieve_chunks(
         query,
         target_collection=target_collection,
@@ -33,17 +33,26 @@ def generate_answer(
         where=where,
     )
     if not chunks:
-        return "No relevant documentation chunks were retrieved.", []
+        return (
+            "No relevant documentation chunks were retrieved.",
+            [],
+            empty_usage(CHAT_MODEL),
+        )
 
     prompt = build_prompt(query, chunks)
-    return complete(prompt, model=CHAT_MODEL), chunks
+    result = complete(prompt, model=CHAT_MODEL)
+    return result.text, chunks, result.usage_only()
 
 
 if __name__ == "__main__":
     question = "how do I create a component?"
     print(f"Q: {question}\n")
-    answer, chunks = generate_answer(question, target_collection=COLLECTION_NAME)
+    answer, chunks, usage = generate_answer(question, target_collection=COLLECTION_NAME)
     print(answer)
+    print(
+        f"\n{usage['latency_s']}s | in={usage['prompt_tokens']} "
+        f"out={usage['completion_tokens']} | ${usage['cost_usd']:.6f}"
+    )
     print("\n--- retrieved for spot-check ---")
     for chunk in chunks:
         meta = chunk.get("metadata") or {}

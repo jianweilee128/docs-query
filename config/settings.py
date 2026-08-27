@@ -41,3 +41,10 @@ TOP_K = 5
 
 # Eval
 EVAL_WORKERS = 8
+
+# USD per 1M tokens. Local servers (LLM_BASE_URL set) are always 0.
+# Update from the vendor price page before citing a dollar figure.
+CHAT_PRICE_PER_MILLION: dict[str, dict[str, float]] = {
+    "gpt-4.1-mini": {"input": 0.40, "output": 1.60},
+    "gpt-4.1": {"input": 2.00, "output": 8.00},
+}

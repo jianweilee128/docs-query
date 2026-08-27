@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,7 +23,7 @@ from config.settings import (
     LLM_BASE_URL,
     PROMPT_JUDGE_PATH,
 )
-from rag.llm import complete, get_llm_client
+from rag.llm import complete, get_llm_client, usage_summary
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -70,7 +71,7 @@ def judge_answer(
     openai_client = client or get_llm_client()
     prompt = build_judge_prompt(question, answer, expect_abstain)
     try:
-        text = complete(
+        result = complete(
             prompt,
             model=JUDGE_MODEL,
             temperature=0,
@@ -79,15 +80,16 @@ def judge_answer(
         )
     except Exception:
         # Some Ollama builds reject response_format; the prompt already asks for JSON.
-        text = complete(
+        result = complete(
             prompt,
             model=JUDGE_MODEL,
             temperature=0,
             json_mode=False,
             client=openai_client,
         )
-    graded = parse_judge_output(text)
+    graded = parse_judge_output(result.text)
     graded["model"] = JUDGE_MODEL
+    graded["usage"] = result.usage_only()
     return graded
 
 
@@ -124,6 +126,7 @@ def validate_judge(workers: int | None = None) -> Path:
     client = get_llm_client()
     count = workers if workers is not None else min(EVAL_WORKERS, len(items))
     rows: list[dict | None] = [None] * len(items)
+    wall_start = time.perf_counter()
 
     def _one(item: dict) -> dict:
         judged = judge_answer(
@@ -142,6 +145,7 @@ def validate_judge(workers: int | None = None) -> Path:
             "judge_reason": judged["reason"],
             "notes": item.get("notes", ""),
             "agree": judged["passed"] == item["human_passed"],
+            "usage": judged.get("usage"),
         }
 
     with ThreadPoolExecutor(max_workers=count) as pool:
@@ -157,6 +161,7 @@ def validate_judge(workers: int | None = None) -> Path:
                 f"judge={'pass' if row['judge_passed'] else 'fail'})"
             )
 
+    wall_s = time.perf_counter() - wall_start
     results = [r for r in rows if r is not None]
     human = [r["human_passed"] for r in results]
     judged = [r["judge_passed"] for r in results]
@@ -182,6 +187,9 @@ def validate_judge(workers: int | None = None) -> Path:
         "keyword_kappa": cohens_kappa(
             human, [bool(r["keyword_passed"]) for r in results]
         ),
+        "usage": usage_summary(
+            [r["usage"] for r in results if r.get("usage")], wall_s=wall_s
+        ),
         "disagreements": [r for r in results if not r["agree"]],
         "results": results,
     }
@@ -203,6 +211,12 @@ def validate_judge(workers: int | None = None) -> Path:
         "Confusion          TP={tp} TN={tn} FP={fp} (lenient) FN={fn} (strict)".format(
             **matrix
         )
+    )
+    judge_usage = summary["usage"]
+    print(
+        f"Judge cost         ${judge_usage['cost_usd']:.4f} over "
+        f"{judge_usage['calls']} calls | latency mean "
+        f"{judge_usage['latency_mean_s']}s | wall {judge_usage['eval_wall_s']}s"
     )
     if summary["disagreements"]:
         print("\nDisagreements:")

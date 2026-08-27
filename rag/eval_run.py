@@ -7,13 +7,21 @@ Usage:
 from __future__ import annotations
 
 import json
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
-from config.settings import COLLECTION_NAME, EVAL_WORKERS, ROOT
+from config.settings import (
+    CHAT_MODEL,
+    COLLECTION_NAME,
+    EVAL_WORKERS,
+    LLM_BASE_URL,
+    ROOT,
+)
 from rag.generate import generate_answer
+from rag.llm import empty_usage, usage_summary
 
 QUESTIONS_PATH = ROOT / "eval" / "questions.json"
 RESULTS_DIR = ROOT / "eval" / "results"
@@ -95,7 +103,7 @@ def diagnose_context(context: dict, generation: dict) -> str:
 def run_case(case: dict) -> dict:
     """Answer and score one case. Never raises — a broken case scores as a failure."""
     try:
-        answer, chunks = generate_answer(
+        answer, chunks, usage = generate_answer(
             case["question"],
             target_collection=COLLECTION_NAME,
         )
@@ -112,6 +120,7 @@ def run_case(case: dict) -> dict:
             "retrieved_ids": [],
             "question": case["question"],
             "answer": "",
+            "usage": empty_usage(CHAT_MODEL),
         }
 
     generation = score_case(case, answer)
@@ -121,6 +130,7 @@ def run_case(case: dict) -> dict:
         "verdict": diagnose_context(context, generation),
         "context": context,
         "retrieved_ids": [c["id"] for c in chunks],
+        "usage": usage,
     }
 
 
@@ -150,6 +160,7 @@ def run_eval(workers: int | None = None) -> Path:
     cases = load_questions()
     count = workers if workers is not None else EVAL_WORKERS
     results: list[dict | None] = [None] * len(cases)
+    wall_start = time.perf_counter()
 
     with ThreadPoolExecutor(max_workers=count) as pool:
         futures = {pool.submit(run_case, case): i for i, case in enumerate(cases)}
@@ -164,15 +175,22 @@ def run_eval(workers: int | None = None) -> Path:
                 f"[{graded['verdict']}] ({graded['reason']})"
             )
 
+    wall_s = time.perf_counter() - wall_start
     results = [r for r in results if r is not None]
     passed = sum(1 for r in results if r["passed"])
     summary = {
         "ran_at": datetime.now(timezone.utc).isoformat(),
+        "model": CHAT_MODEL,
+        "base_url": LLM_BASE_URL,
         "total": len(results),
         "passed": passed,
         "failed": len(results) - passed,
         "score": round(passed / len(results), 3) if results else 0.0,
         **context_summary(results),
+        "usage": usage_summary(
+            [r.get("usage") or empty_usage(CHAT_MODEL) for r in results],
+            wall_s=wall_s,
+        ),
         "results": results,
     }
 
@@ -192,6 +210,17 @@ def run_eval(workers: int | None = None) -> Path:
         f"recall on misses {summary['recall_on_misses']}"
     )
     print(f"Generation given context {summary['generation_given_context']}")
+
+    usage = summary["usage"]
+    print(
+        f"\nGeneration cost ${usage['cost_usd']:.4f} over {usage['calls']} calls "
+        f"({usage['prompt_tokens']} in / {usage['completion_tokens']} out)"
+    )
+    print(
+        f"Latency per call  mean {usage['latency_mean_s']}s | "
+        f"p50 {usage['latency_p50_s']}s | p95 {usage['latency_p95_s']}s"
+    )
+    print(f"Eval wall clock   {usage['eval_wall_s']}s at {count} workers")
     print(f"\nWrote {out}")
     return out
 

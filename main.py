@@ -6,7 +6,9 @@ from rag.generate import generate_answer
 
 def main() -> None:
     question = input("> ").strip()
-    answer, _chunks = generate_answer(question, target_collection=COLLECTION_NAME)
+    answer, _chunks, _usage = generate_answer(
+        question, target_collection=COLLECTION_NAME
+    )
     print(answer)
 
 
