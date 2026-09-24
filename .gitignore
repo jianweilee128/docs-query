@@ -219,3 +219,6 @@ __marimo__/
 
 # Chroma
 chroma/
+
+# Eval run outputs
+eval/results/

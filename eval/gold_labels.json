@@ -1,0 +1,173 @@
+{
+  "source_run": "eval/results/run-20260820-173139.json",
+  "labeled_by": "human",
+  "n": 15,
+  "criterion": "Correctness against the Angular docs, not against retrieved chunks. Pass if a knowledgeable Angular reader would accept the answer. Paraphrase is allowed. Wrong API, incomplete answer, or abstaining when the docs do cover the question is a fail. expect_abstain questions pass only if the answer refuses.",
+  "items": [
+    {
+      "id": "easy-010",
+      "type": "howto",
+      "question": "How do I create a new component with the Angular CLI?",
+      "answer": "To create a new component with the Angular CLI, use the following command in your terminal inside your Angular project directory:\n\n```shell\nng generate component <component-name>\n```\n\nFor example, to create a component named \"profile\", you would run:\n\n```shell\nng generate component profile\n```\n\nThis command generates the new component within your project, setting up the necessary files and updating your Angular module declarations automatically.\n\nThis process is shown in the example of creating a \"profile\" component for the `angular-custom-route-match` project:\n\n1. Navigate to your project directory:\n\n```shell\ncd angular-custom-route-match\n```\n\n2. Run the component generation command:\n\n```shell\nng generate component profile\n```\n\nAfter that, you can edit the generated component files as needed, such as replacing placeholder HTML content in the component's template file (`profile.html`).\n\nThis example is from the documentation excerpt on creating a sample application and adding a component [angular-create-a-sample-application-479-0]. Additional references to the command in other contexts confirm the use of `ng generate component`.\n\n**Sources:** [angular-create-a-sample-application-479-0][angular-adding-a-basic-form-control-346-1]",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct CLI command and usage.",
+      "synthetic": false
+    },
+    {
+      "id": "easy-012",
+      "type": "howto",
+      "question": "How do I project content into a component from its parent?",
+      "answer": "To project content into a component from its parent, use Angular's `<ng-content>` directive in the receiving component's template. Any children placed inside the component's element in the parent's template are rendered at the location of `<ng-content>` inside the child component.\n\nFor example:\n\n```typescript\n@Component({\n  selector: 'custom-card',\n  template: `\n    <div class=\"card-shadow\">\n      <ng-content></ng-content>\n    </div>\n  `,\n})\nexport class CustomCard {}\n```\n\nWhen used like this in the parent template:\n\n```html\n<custom-card>\n  <p>This is the projected content</p>\n</custom-card>\n```\n\nThe output DOM will render:\n\n```html\n<custom-card>\n  <div class=\"card-shadow\">\n    <p>This is the projected content</p>\n  </div>\n</custom-card>\n```\n\nThis means that the parent's content inside `<custom-card>` is projected into the location of `<ng-content>` inside the component's template.\n\nAdditional details to consider:\n\n- The projected content lives in the parent's view, meaning that Angular's change detection runs for that content when the parent runs it. If the receiving component uses `OnPush` change detection, Angular can skip checking the component's own template but will still check the projected content because it belongs to the parent.\n- Projected content gets its dependencies from the parent's injector, not from the receiving component's `viewProviders`.\n- Some library components such as menus or tabs manage their own children using `ContentChildren`. Projecting content into these components can break functionality if the projected content comes from a different view context.\n\nIn summary, to project content into a component, add `<ng-content>` inside the component's template where you want the projected content to appear, and then place the content inside the component's tag in the parent template.\n\n**Sources:** [angular-specify-outputs-in-the-component-decorator-74-2], [angular-projected-content-lives-in-the-parent-s-view-79-0], [angular-some-library-components-don-t-support-projected-children-80-0]",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct content projection via ng-content with a working example.",
+      "synthetic": false
+    },
+    {
+      "id": "medium-001",
+      "type": "factual",
+      "question": "Why does Angular require a track expression in @for blocks?",
+      "answer": "Angular requires a `track` expression in `@for` blocks to maintain a relationship between the data items and their corresponding DOM nodes. This enables Angular to optimize performance by performing the minimum necessary DOM operations when the data changes. Without tracking, Angular cannot efficiently map data items to DOM elements, which would lead to less efficient rendering and slower updates.\n\nThe `track` expression should specify a property that uniquely identifies each item, such as `id` or `uuid`. For static collections that never change, `$index` can be used to track items by their index. If no unique property is available, tracking by the item reference is possible but not recommended, as it results in slower rendering updates due to the lack of a clear mapping between data and DOM nodes.\n\nAdditionally, unlike Angular's `*ngFor`, the `@for` block prioritizes view reuse. If the tracked property changes but the object reference stays the same, Angular updates the existing view's bindings instead of destroying and recreating the element, which further optimizes rendering.\n\nIn summary, the `track` expression is essential in `@for` blocks to optimize the rendering performance by allowing Angular to reuse DOM elements efficiently and minimize DOM manipulations when the underlying data changes.\n\n**Sources:**  \n[angular-control-flow-with-if-and-for-99-1]  \n[angular-why-is-track-in-for-blocks-important-121-0]  \n[angular-control-flow-with-if-and-for-99-0]  \n[angular-why-is-track-in-for-blocks-important-121-1]",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct conceptual answer: track maps items to DOM nodes so Angular can reuse views.",
+      "synthetic": false
+    },
+    {
+      "id": "medium-011",
+      "type": "howto",
+      "question": "How do I prefetch a deferred block's dependencies before it renders?",
+      "answer": "You can prefetch a deferred block's dependencies by specifying a **prefetch trigger** in the `@defer` block's trigger expression. This trigger loads the JavaScript for the deferred content before it is actually shown, allowing you to start prefetching resources early (such as when the browser becomes idle) so that they are ready faster when the content is rendered.\n\nTo specify a prefetch trigger, you prefix it with the keyword `prefetch` and separate it from the block's main trigger by a semicolon (`;`). For example, if you want to prefetch when the browser is idle but only render the deferred block on user interaction, you write:\n\n```html\n@defer (on interaction; prefetch on idle) {\n  <large-cmp />\n} @placeholder {\n  <div>Large component placeholder</div>\n}\n```\n\nYou can also customize the idle timeout for prefetching, e.g., start prefetching after 500 milliseconds of idle time:\n\n```html\n@defer (on interaction; prefetch on idle(500)) {\n  <large-cmp />\n}\n```\n\nThis way, the dependencies of the `@defer` block are prefetched before rendering, improving perceived performance by loading resources before the user interacts with the content `[angular-prefetching-data-with-prefetch-146-0][angular-prefetching-data-with-prefetch-146-1]`.\n\n### Note on deferrable dependencies:\nOnly standalone components, directives, pipes, and their CSS styles declared inside the `@defer` block can be deferred and prefetched. Also, they cannot be referenced outside the defer block in the same file to qualify for deferral `[angular-which-dependencies-are-deferred-137-0]`.\n\n---\n\n**Sources:** `[angular-prefetching-data-with-prefetch-146-0][angular-prefetching-data-with-prefetch-146-1][angular-which-dependencies-are-deferred-137-0]`",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct prefetch trigger syntax on a @defer block.",
+      "synthetic": false
+    },
+    {
+      "id": "medium-013",
+      "type": "howto",
+      "question": "How do I create a two-way bindable input on a component?",
+      "answer": "To create a two-way bindable input on a component, follow these steps:\n\n1. Define a **model input** property in your component using `model()`. This is similar to a standard input but allows the component to write new values that propagate back to the parent when using two-way binding.\n\n```ts\n@Component(/* ... */)\nexport class CustomSlider {\n  // Define a model input named \"value\".\n  value = model(0);\n\n  increment() {\n    // Update the model input, propagating the value to any bindings.\n    this.value.update(oldValue => oldValue + 10);\n  }\n}\n```\n\n2. In the parent's template, bind to the model input using the banana-in-a-box syntax (parentheses inside square brackets), e.g.:\n\n```html\n<custom-slider [(value)]=\"volume\"></custom-slider>\n```\n\nThis two-way binding keeps the `value` inside the `CustomSlider` and the `volume` property in the parent `MediaControls` component in sync.\n\nThis setup allows the custom component to both receive an initial value and propagate changes back to the parent, enabling two-way data binding on a plain property.\n\nReferences:\n\n- Defining and updating a model input property with `model()` and `.update()` method enables two-way binding from the component side. `[angular-model-inputs-57-0]`\n- Usage of banana-in-a-box syntax `[(value)]` in the parent component template creates the two-way binding from the parent's side. `[angular-two-way-binding-with-plain-properties-58-0]`\n- Model inputs are specifically recommended to enable two-way binding for components that modify a value based on user interaction, such as custom form controls. `[angular-when-to-use-model-inputs-61-0]`\n\n**Sources:** `[angular-model-inputs-57-0][angular-two-way-binding-with-plain-properties-58-0][angular-when-to-use-model-inputs-61-0]`",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct: model() plus banana-in-a-box two-way binding.",
+      "synthetic": false
+    },
+    {
+      "id": "hard-023",
+      "type": "howto",
+      "question": "How do I stop the router from setting an input to undefined when the value was never present in router data?",
+      "answer": "To stop the router from setting an input to `undefined` when the value was never present in the router data for the active component instance, you should set the `unmatchedInputBehavior` option to `'undefinedIfStale'` in your router configuration. This option prevents the router from setting `undefined` for inputs that have never been available, thus retaining their initial values unless explicitly provided by the router.\n\nUse this configuration:\n\n```ts\nprovideRouter(\n  appRoutes,\n  withComponentInputBinding({\n    unmatchedInputBehavior: 'undefinedIfStale',\n  }),\n);\n```\n\nAdditionally, if you want inputs to retain their initial values and disable query parameter binding, combine `unmatchedInputBehavior: 'undefinedIfStale'` with `queryParams: false`:\n\n```ts\nprovideRouter(\n  appRoutes,\n  withComponentInputBinding({\n    queryParams: false,\n    unmatchedInputBehavior: 'undefinedIfStale',\n  }),\n);\n```\n\nNote the exception: matrix parameters, if removed after being provided, will still cause the input to be set to `undefined` to avoid stale data retention.\n\nThis configuration ensures inputs retain initial values and are not set to `undefined` unless stale data is detected or values are explicitly removed in navigation.\n\n**Sources:**  \n[angular-configure-behavior-for-inputs-not-available-in-router-data-473-0]  \n[angular-configure-behavior-for-inputs-not-available-in-router-data-473-1]",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct unmatchedInputBehavior: undefinedIfStale on withComponentInputBinding.",
+      "synthetic": false
+    },
+    {
+      "id": "abstain-001",
+      "type": "abstain",
+      "question": "What is Angular's official market share in 2026?",
+      "answer": "The documentation excerpts provided do not contain any information about Angular's official market share in 2026. Therefore, I cannot provide an answer based on these documents.\n\n**Sources:** None",
+      "expect_abstain": true,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct refusal: market share is not in the Angular docs.",
+      "synthetic": false
+    },
+    {
+      "id": "abstain-006",
+      "type": "abstain",
+      "question": "What does the RenderMode.Edge rendering mode do for server routes?",
+      "answer": "The documentation excerpts provided do not contain any information about the `RenderMode.Edge` rendering mode for server routes. They only describe `RenderMode.Server`, `RenderMode.Client`, and `RenderMode.Prerender`. Therefore, no answer can be given based on the available documentation.\n\n**Sources:** [angular-rendering-modes-488-0][angular-configuring-server-routes-487-1][angular-rendering-modes-488-3][angular-rendering-modes-488-1][angular-customizing-build-time-prerendering-ssg-491-6]",
+      "expect_abstain": true,
+      "keyword_passed": true,
+      "human_passed": true,
+      "notes": "Correct refusal: RenderMode.Edge is not a real Angular rendering mode.",
+      "synthetic": false
+    },
+    {
+      "id": "easy-007",
+      "type": "factual",
+      "question": "What Angular API is used for HTTP requests via dependency injection?",
+      "answer": "The Angular API used for HTTP requests via dependency injection is the `inject` function from Angular's core injection context. For example, in an interceptor, you can inject services like `AuthService` using `inject(AuthService)` to handle HTTP requests and modify them as needed, such as adding authentication tokens to the headers before forwarding the request. This shows that the `inject` API is used for dependency injection to interact with HTTP requests in Angular interceptors `[angular-dependency-injection-in-interceptors-326-0]`.\n\n**Sources:** angular-dependency-injection-in-interceptors-326-0",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": false,
+      "notes": "Wrong API. Fluent answer names inject() instead of HttpClient.",
+      "synthetic": false
+    },
+    {
+      "id": "medium-009",
+      "type": "factual",
+      "question": "What reactive forms class holds a dynamic, homogenous collection of controls?",
+      "answer": "The documentation excerpts do not contain enough information to determine which reactive forms class holds a dynamic, homogenous collection of controls. \n\n**Sources:** None",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": false,
+      "notes": "Abstained. Correct answer is FormArray; a refusal is not a correct answer.",
+      "synthetic": false
+    },
+    {
+      "id": "hard-033",
+      "type": "howto",
+      "question": "How do I build a reactive form whose controls are non-nullable by default?",
+      "answer": "The provided documentation excerpts do not contain specific information on how to build a reactive form whose controls are non-nullable by default. There is no mention of configuration or APIs in reactive forms that enforce non-nullable controls automatically.\n\nHowever, it does mention the existence of a `NonNullableFormBuilder` which you can inject, but no explicit details or examples are given regarding non-nullable controls using this builder.\n\nTherefore, based on the provided excerpts, there is not enough information to explain how to build reactive forms with non-nullable controls by default.\n\n**Sources:** [angular-formbuilder-and-nonnullableformbuilder-378-1][angular-directives-367-1]",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": false,
+      "notes": "Abstained even after naming NonNullableFormBuilder. Incomplete.",
+      "synthetic": false
+    },
+    {
+      "id": "hard-037",
+      "type": "howto",
+      "question": "How do I ignore unknown elements in a nested component test instead of declaring them?",
+      "answer": "To ignore unknown elements in a nested component test instead of declaring them, you can use stub components for the nested components you don't want to test in detail. This avoids the need to declare the real nested components, their nested components, and services they may inject.\n\nSpecifically, for components or directives that play little or no role in the test, create stub versions with matching selectors but empty templates and empty classes. For example:\n\n```ts\n@Component({selector: 'app-banner', template: ''})\nclass BannerStub {}\n\n@Component({selector: 'router-outlet', template: ''})\nclass RouterOutletStub {}\n\n@Component({selector: 'app-welcome', template: ''})\nclass WelcomeStub {}\n```\n\nThen declare those stub components in the test module setup (e.g., using `TestBed.overrideComponent` to override the `imports` of your component under test):\n\n```ts\nTestBed.configureTestingModule({\n  providers: [provideRouter([]), UserAuthentication],\n}).overrideComponent(App, {\n  set: {\n    imports: [RouterLink, BannerStub, RouterOutletStub, WelcomeStub],\n  },\n});\n```\n\nThis replaces the unknown elements with minimal stub versions so they can be ignored in the test without causing Angular compiler errors about unrecognized tags or requiring you to declare the real nested components and their dependencies. This technique helps keep your tests focused only on the primary component. \n\nIn summary, instead of declaring the real nested components, you stub them out with dummy components and include those in the test module configuration to ignore the unknown elements in nested component tests.\n\nSources: [angular-nested-component-tests-603-0][angular-nested-component-tests-603-1][angular-stubbing-unneeded-components-604-0]",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": false,
+      "notes": "Answered stub components. The question asked how to ignore unknown elements (NO_ERRORS_SCHEMA).",
+      "synthetic": false
+    },
+    {
+      "id": "hard-005",
+      "type": "factual",
+      "question": "Which incremental hydration trigger keeps deferred content dehydrated indefinitely on the initial render?",
+      "answer": "The incremental hydration trigger that keeps deferred content dehydrated indefinitely on the initial render is not explicitly mentioned in the provided excerpts. However, based on the explanation of hydrate triggers, adding a `hydrate` trigger to a `@defer` block tells Angular that the defer block should stay dehydrated until the `hydrate` trigger fires (e.g., on interaction). This implies that without firing that specific trigger, the content remains dehydrated.\n\nStill, none of the excerpts detail a trigger that explicitly keeps deferred content dehydrated indefinitely on the initial render (meaning it never fires automatically). The excerpts mostly describe triggers that fire on interaction, hover, idle, etc., which cause hydration after certain events.\n\nTherefore, the documentation excerpts do not contain enough information to identify a trigger that keeps deferred content dehydrated indefinitely on the initial render.\n\n**Sources:** [angular-how-does-incremental-hydration-work-536-1][angular-hydrate-triggers-alongside-regular-triggers-541-0]",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": false,
+      "notes": "Abstained / guessed. Correct trigger is hydrate never.",
+      "synthetic": false
+    },
+    {
+      "id": "synth-paraphrase-010",
+      "type": "howto",
+      "question": "How do I create a new component with the Angular CLI?",
+      "answer": "From the project root, run `ng g c profile`. That scaffolds the component files. `ng g c` is the short form of the generate-component command.",
+      "expect_abstain": false,
+      "keyword_passed": false,
+      "human_passed": true,
+      "notes": "Correct paraphrase. Keyword scorer fails because it wants the long CLI form.",
+      "synthetic": true
+    },
+    {
+      "id": "synth-false-keyword-013",
+      "type": "howto",
+      "question": "How do I create a two-way bindable input on a component?",
+      "answer": "Put a `model` attribute on a native input in the template, for example `<input model=\"name\">`. Angular will two-way bind that field to the component.",
+      "expect_abstain": false,
+      "keyword_passed": true,
+      "human_passed": false,
+      "notes": "Mentions the token `model` but describes HTML, not model(). Keyword scorer would pass.",
+      "synthetic": true
+    }
+  ]
+}
