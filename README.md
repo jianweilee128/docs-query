@@ -98,4 +98,26 @@ uv run python -m rag.eval_run     # 80-question keyword + retrieval eval
 uv run python -m rag.eval_judge   # judge vs eval/gold_labels.json
 ```
 
+### Docker
+
+Same CLI, same `.env`. The image does not contain secrets. First start ingests into a named volume if Chroma is empty.
+
+Required before `docker compose run`:
+
+- **Docker Desktop running.** `docker info` must reach the engine. If you see `dockerDesktopLinuxEngine` / named-pipe errors, start Docker Desktop and wait until it is idle.
+- **`.env` in the repo root.** Compose passes `env_file: .env`. Copy `.env.template` and set `OPENAI_API_KEY`. The entrypoint exits if that key is missing — embeddings (and default chat) call OpenAI.
+- **Network on first start.** An empty Chroma volume triggers `python -m rag.store` (chunk + embed the Angular corpus). That bills embedding tokens and can take several minutes.
+- **A TTY for the interactive CLI.** `docker compose run --rm rag` already sets `stdin_open` / `tty`. Plain `docker run` without `-it` will hang on `input()`.
+
+Optional:
+
+- **Host Ollama** if you want the local stack. `localhost:11434` inside the container is the container itself, not your machine. Use `LLM_BASE_URL=http://host.docker.internal:11434/v1` and a `CHAT_MODEL` that matches `ollama list`. Embeddings still go to OpenAI.
+- **Disk** for the `chroma_data` volume. Re-ingest only happens when that volume has no `chroma.sqlite3`.
+
+```
+docker compose build
+docker compose run --rm rag                 # interactive loop; quit/exit or empty line to stop
+docker compose run --rm rag python -m rag.eval_run
+```
+
 Swap stacks by uncommenting the Ollama block in `.env` (`LLM_BASE_URL=http://localhost:11434/v1`, `CHAT_MODEL=qwen3`). Set `PYTHONUNBUFFERED=1` for the local run — it takes ~15 minutes and stdout otherwise block-buffers to nothing. Prices for cost accounting live in `CHAT_PRICE_PER_MILLION` in `config/settings.py`; anything not listed, including local models, counts as $0.

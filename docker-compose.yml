@@ -1,0 +1,16 @@
+services:
+  rag:
+    build: .
+    image: llm-docs-rag:local
+    env_file: .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+    stdin_open: true
+    tty: true
+    volumes:
+      - chroma_data:/app/chroma
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  chroma_data:
